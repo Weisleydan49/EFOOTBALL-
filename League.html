@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eFootball League 2026</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --bg: #050a0f;
+            --surface: #0b1520;
+            --card: #0f1e2e;
+            --border: #1a3a5c;
+            --accent: #00c8ff;
+            --gold: #f0a500;
+            --green: #00e676;
+            --red: #ff3d57;
+            --text: #e0eaf5;
+            --muted: #4a6b8a;
+            --header-h: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* BACKGROUND GRID */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(0, 200, 255, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 200, 255, .03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 16px 60px;
+        }
+
+        /* HEADER */
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            position: relative;
+        }
+
+        header::after {
+            content: '';
+            display: block;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), var(--gold), var(--accent), transparent);
+            margin-top: 20px;
+        }
+
+        .league-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #0b1d30, #1a3a5c);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 6px 20px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(42px, 8vw, 80px);
+            line-height: 1;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+            color: var(--muted);
+            font-size: 13px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin-top: 6px;
+        }
+
+        /* NAV TABS */
+        nav {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 28px 0 32px;
+        }
+
+        nav button {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        nav button:hover,
+        nav button.active {
+            background: linear-gradient(135deg, #0d2340, #0a3060);
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 16px rgba(0, 200, 255, .2);
+        }
+
+        /* SECTIONS */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn .3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        /* SECTION TITLE */
+        .sec-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(24px, 4vw, 36px);
+            letter-spacing: 3px;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .sec-title span {
+            color: var(--accent);
+        }
+
+        .sec-sub {
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        /* STANDING TABLE */
+        .tbl-wrap {
+            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead tr {
+            background: linear-gradient(90deg, #0a2a45, #0a1f35);
+        }
+
+        thead th {
+            padding: 12px 10px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        thead th:first-child {
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(26, 58, 92, .5);
+            transition: background .15s;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 200, 255, .04);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 11px 10px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        td:first-child {
+            text-align: left;
+            padding-left: 8px;
+        }
+
+        .pos {
+            width: 32px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .pos.top3 {
+            color: var(--gold);
+        }
+
+        .pos.bot {
+            color: var(--red);
+        }
+
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .team-ico {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .team-name {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .team-user {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        .pts {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .gd.pos-gd {
+            color: var(--green);
+        }
+
+        .gd.neg-gd {
+            color: var(--red);
+        }
+
+        /* FORM BADGES */
+        .form-cell {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .fb {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .fb.W {
+            background: var(--green);
+        }
+
+        .fb.D {
+            background: var(--gold);
+        }
+
+        .fb.L {
+            background: var(--red);
+        }
+
+        .fb.blank {
+            background: var(--border);
+        }
+
+        /* ZONE INDICATORS */
+        .zone-bar {
+            width: 4px;
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        tr.z-cl td:first-child {
+            border-left: 3px solid var(--accent);
+        }
+
+        tr.z-el td:first-child {
+            border-left: 3px solid var(--gold);
+        }
+
+        tr.z-rel td:first-child {
+            border-left: 3px solid var(--red);
+        }
+
+        /* FIXTURES */
+        .gw-block {
+            margin-bottom: 32px;
+        }
+
+        .gw-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--gold);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .gw-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--gold), transparent);
+        }
+
+        .match-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 12px;
+            transition: border-color .2s, box-shadow .2s;
+            cursor: default;
+        }
+
+        .match-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 200, 255, .1);
+        }
+
+        .home-side {
+            text-align: right;
+        }
+
+        .away-side {
+            text-align: left;
+        }
+
+        .m-team {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .m-user {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .score-box {
+            background: linear-gradient(135deg, #0a2a45, #061525);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 6px 14px;
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .score-box .vs {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 2px;
+        }
+
+        .score-box .score {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .match-meta {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 2px;
+            letter-spacing: 1px;
+        }
+
+        .played .score-box {
+            border-color: rgba(0, 200, 255, .3);
+        }
+
+        .played .score-box .score {
+            color: var(--accent);
+        }
+
+        /* RESULT INPUT */
+        .result-input-area {
+            background: var(--surface);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .result-input-area.open {
+            display: block;
+        }
+
+        .score-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .score-inputs input {
+            width: 54px;
+            height: 42px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+        }
+
+        .score-inputs input:focus {
+            border-color: var(--accent);
+        }
+
+        .score-inputs span {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--muted);
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all .2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0060b0, #0090d0);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 16px rgba(0, 200, 255, .4);
+        }
+
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 9px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        /* RULES */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .rule-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            transition: border-color .2s;
+        }
+
+        .rule-card:hover {
+            border-color: var(--accent);
+        }
+
+        .rule-icon {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        .rule-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .rule-body {
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .rule-body li {
+            margin-left: 16px;
+            margin-bottom: 4px;
+        }
+
+        .rule-tag {
+            display: inline-block;
+            background: rgba(0, 200, 255, .1);
+            border: 1px solid rgba(0, 200, 255, .3);
+            color: var(--accent);
+            font-size: 10px;
+            font-family: 'Orbitron', sans-serif;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .rule-tag.gold {
+            background: rgba(240, 165, 0, .1);
+            border-color: rgba(240, 165, 0, .3);
+            color: var(--gold);
+        }
+
+        .rule-tag.red {
+            background: rgba(255, 61, 87, .1);
+            border-color: rgba(255, 61, 87, .3);
+            color: var(--red);
+        }
+
+        .rule-tag.green {
+            background: rgba(0, 230, 118, .1);
+            border-color: rgba(0, 230, 118, .3);
+            color: var(--green);
+        }
+
+        /* TEAMS */
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 14px;
+        }
+
+        .team-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: border-color .2s, transform .2s;
+        }
+
+        .team-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .team-card .team-ico {
+            width: 46px;
+            height: 46px;
+            font-size: 14px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .team-card .info .name {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .team-card .info .handle {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        /* SCROLL BAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:600px) {
+            .match-card {
+                grid-template-columns: 1fr auto 1fr;
+                padding: 10px;
+            }
+
+            .m-team {
+                font-size: 12px;
+            }
+        }
+
+        /* LEGEND */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .legend-bar {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .notice {
+            background: rgba(240, 165, 0, .08);
+            border: 1px solid rgba(240, 165, 0, .25);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--gold);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .notice strong {
+            display: block;
+            margin-bottom: 4px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <header>
+            <div class="league-badge">⚽ eFootball Konami 2026</div>
+            <h1>PRIVATE LEAGUE</h1>
+            <div class="subtitle">Season 2025/26 &nbsp;·&nbsp; 8 Clubs &nbsp;·&nbsp; 56 Fixtures</div>
+        </header>
+
+        <nav>
+            <button class="active" onclick="showTab('standings')">🏆 Standings</button>
+            <button onclick="showTab('fixtures')">📅 Fixtures</button>
+            <button onclick="showTab('teams')">👥 Teams</button>
+            <button onclick="showTab('rules')">📋 Rules</button>
+            <button onclick="promptAdmin()" id="adminBtn" style="border-color:var(--gold);color:var(--gold)">🔐 Admin Login</button>
+        </nav>
+
+        <!-- ═══════════════════════════════ STANDINGS ═══════════════════════════════ -->
+        <div class="section active" id="standings">
+            <div class="sec-title">League <span>Table</span></div>
+            <div class="sec-sub">Updated after each matchday · Click a match to enter result</div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-bar" style="background:var(--accent)"></div> Promotion / Top 3
+                </div>
+                <div class="legend-item">
+                    <div class="legend-bar" style="background:var(--gold)"></div> Mid-table
+                </div>
+                <div class="legend-item">
+                    <div class="legend-bar" style="background:var(--red)"></div> Bottom (Relegated)
+                </div>
+            </div>
+
+            <div class="tbl-wrap">
+                <table id="standingsTable">
+                    <thead>
+                        <tr>
+                            <th style="width:36px">#</th>
+                            <th style="text-align:left;padding-left:8px">Club</th>
+                            <th>MP</th>
+                            <th>W</th>
+                            <th>D</th>
+                            <th>L</th>
+                            <th>GF</th>
+                            <th>GA</th>
+                            <th>GD</th>
+                            <th>PTS</th>
+                            <th>Last 5</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standingsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════ FIXTURES ═══════════════════════════════ -->
+        <div class="section" id="fixtures">
+            <div class="sec-title">Season <span>Fixtures</span></div>
+            <div class="sec-sub">Home & Away · 14 Matchdays · Click score to enter result</div>
+            <div class="notice"><strong>📌 How to Enter Results</strong>Click any fixture card's score box to open the
+                result entry panel. Confirm to update the league table automatically.</div>
+            <div id="fixturesContainer"></div>
+        </div>
+
+        <!-- ═══════════════════════════════ TEAMS ═══════════════════════════════ -->
+        <div class="section" id="teams">
+            <div class="sec-title">Registered <span>Clubs</span></div>
+            <div class="sec-sub">Season 2025/26 — 8 clubs</div>
+            <div class="teams-grid" id="teamsGrid"></div>
+        </div>
+
+        <!-- ═══════════════════════════════ RULES ═══════════════════════════════ -->
+        <div class="section" id="rules">
+            <div class="sec-title">League <span>Rules</span></div>
+            <div class="sec-sub">eFootball Konami 2026 · All match rules apply</div>
+            <div class="rules-grid" id="rulesGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // ─── ADMIN AUTH ──────────────────────────────────────────────────────────────
+        // Simple client-side admin gate. The password is hashed so it isn't plain-text.
+        // SHA-256 of "admin password" — change the hash below to match your own password.
+        // To generate: open browser console and run:
+        //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword'))
+        //     .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
+        const ADMIN_HASH = '81fda04b5cade7f0dba73f34d3385accf1e18bc7cd92740365fa41b5fd6df143'; // SHA-256 of "Almond"
+        let isAdmin = false;
+
+        async function sha256(msg) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+            return [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function promptAdmin() {
+            const pw = prompt('🔐 Enter admin password to edit results:');
+            if (!pw) return;
+            const h = await sha256(pw);
+            if (h === ADMIN_HASH) {
+                isAdmin = true;
+                sessionStorage.setItem('efb_admin', '1');
+                alert('✅ Admin mode activated. You can now enter results.');
+                renderFixtures();
+            } else {
+                alert('❌ Wrong password.');
+            }
+        }
+
+        // Persist admin within the session
+        if (sessionStorage.getItem('efb_admin') === '1') isAdmin = true;
+
+        // ─── DATA ───────────────────────────────────────────────────────────────────
+        const TEAMS = [
+            { id: 0, name: "Inter Milan",  user: "___a.l",        color: "#0066cc", icon: "⚫🔵" },
+            { id: 1, name: "LA Lakers",    user: "o_koth",         color: "#552583", icon: "💜"   },
+            { id: 2, name: "Man United",   user: "Mwita005",       color: "#cc0000", icon: "🔴"   },
+            { id: 3, name: "Barcelona",    user: "Brwn_001",       color: "#a50044", icon: "🔵🔴" },
+            { id: 4, name: "BILLIONARE",   user: "ghtbbczlair",    color: "#d4a800", icon: "💰"   },
+            { id: 5, name: "Jamaica",      user: "Astro__boy_RON", color: "#009900", icon: "🟡🟢" },
+            { id: 6, name: "iNEED2p",      user: "3am_r1zzz",      color: "#ff5500", icon: "🔥"   },
+            { id: 7, name: "Man United",   user: "richarito561",   color: "#d00027", icon: "👹🔴" },
+        ];
+
+        // 8-team full home-and-away round-robin — 14 matchdays, 4 matches per day, 56 total
+        // Generated via standard Berger round-robin algorithm for n=8
+        const SCHEDULE_TEMPLATE = [
+            // MD1
+            [[0,7],[1,6],[2,5],[3,4]],
+            // MD2
+            [[7,4],[5,3],[6,2],[0,1]],
+            // MD3
+            [[1,7],[2,0],[3,6],[4,5]],
+            // MD4
+            [[7,5],[6,4],[0,3],[1,2]],
+            // MD5
+            [[2,7],[3,1],[4,0],[5,6]],
+            // MD6
+            [[7,6],[0,5],[1,4],[2,3]],
+            // MD7
+            [[3,7],[4,2],[5,1],[6,0]],
+            // MD8  — return legs start
+            [[7,0],[6,1],[5,2],[4,3]],
+            // MD9
+            [[4,7],[3,5],[2,6],[1,0]],
+            // MD10
+            [[7,1],[0,2],[6,3],[5,4]],
+            // MD11
+            [[5,7],[4,6],[3,0],[2,1]],
+            // MD12
+            [[7,2],[1,3],[0,4],[6,5]],
+            // MD13
+            [[6,7],[5,0],[4,1],[3,2]],
+            // MD14
+            [[7,3],[2,4],[1,5],[0,6]],
+        ];
+
+        // Build flat fixtures list
+        let FIXTURES = [];
+        SCHEDULE_TEMPLATE.forEach((md, mdIdx) => {
+            md.forEach(([h, a]) => {
+                if (h !== null && a !== null) {
+                    FIXTURES.push({ id: FIXTURES.length, md: mdIdx + 1, home: h, away: a, hg: null, ag: null });
+                }
+            });
+        });
+
+        // Stats store
+        function defaultStats(id) {
+            return { id, mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, form: [] };
+        }
+        let stats = TEAMS.map(t => defaultStats(t.id));
+
+        function recalcStats() {
+            stats = TEAMS.map(t => defaultStats(t.id));
+            FIXTURES.forEach(f => {
+                if (f.hg === null) return;
+                const h = stats[f.home], a = stats[f.away];
+                h.mp++; a.mp++;
+                h.gf += f.hg; h.ga += f.ag;
+                a.gf += f.ag; a.ga += f.hg;
+                if (f.hg > f.ag) { h.w++; a.l++; pushForm(h, 'W'); pushForm(a, 'L'); }
+                else if (f.hg < f.ag) { h.l++; a.w++; pushForm(h, 'L'); pushForm(a, 'W'); }
+                else { h.d++; a.d++; pushForm(h, 'D'); pushForm(a, 'D'); }
+            });
+        }
+
+        function pushForm(s, r) { s.form.push(r); if (s.form.length > 5) s.form.shift(); }
+
+        function pts(s) { return s.w * 3 + s.d; }
+        function gd(s) { return s.gf - s.ga; }
+
+        function getSorted() {
+            return [...stats].sort((a, b) => {
+                if (pts(b) !== pts(a)) return pts(b) - pts(a);
+                if (gd(b) !== gd(a)) return gd(b) - gd(a);
+                return b.gf - a.gf;
+            });
+        }
+
+        // ─── RENDER STANDINGS ────────────────────────────────────────────────────────
+        function renderStandings() {
+            recalcStats();
+            const sorted = getSorted();
+            const tbody = document.getElementById('standingsBody');
+            tbody.innerHTML = '';
+            sorted.forEach((s, i) => {
+                const t = TEAMS[s.id];
+                const pos = i + 1;
+                const g = gd(s);
+                const zoneClass = pos <= 3 ? 'z-cl' : pos >= 7 ? 'z-rel' : '';
+                const posClass = pos <= 3 ? 'pos top3' : pos >= 7 ? 'pos bot' : 'pos';
+
+                const formHtml = (() => {
+                    const arr = s.form.slice(-5);
+                    while (arr.length < 5) arr.unshift(null);
+                    return arr.map(r => r ? `<span class="fb ${r}">${r}</span>` : `<span class="fb blank"></span>`).join('');
+                })();
+
+                tbody.innerHTML += `
+      <tr class="${zoneClass}">
+        <td><span class="${posClass}">${pos}</span></td>
+        <td>
+          <div class="team-cell">
+            <div class="team-ico" style="background:${t.color}">${t.icon}</div>
+            <div>
+              <div class="team-name">${t.name}</div>
+              <div class="team-user">@${t.user}</div>
+            </div>
+          </div>
+        </td>
+        <td>${s.mp}</td>
+        <td>${s.w}</td>
+        <td>${s.d}</td>
+        <td>${s.l}</td>
+        <td>${s.gf}</td>
+        <td>${s.ga}</td>
+        <td class="gd ${g > 0 ? 'pos-gd' : g < 0 ? 'neg-gd' : ''}">${g > 0 ? '+' + g : g}</td>
+        <td><span class="pts">${pts(s)}</span></td>
+        <td><div class="form-cell">${formHtml}</div></td>
+      </tr>`;
+            });
+        }
+
+        // ─── RENDER FIXTURES ─────────────────────────────────────────────────────────
+        function renderFixtures() {
+            const container = document.getElementById('fixturesContainer');
+            container.innerHTML = '';
+
+            for (let md = 1; md <= 14; md++) {
+                const matches = FIXTURES.filter(f => f.md === md);
+                let html = `<div class="gw-block"><div class="gw-label">Matchday ${md}</div>`;
+                matches.forEach(f => {
+                    const ht = TEAMS[f.home], at = TEAMS[f.away];
+                    const played = f.hg !== null;
+                    const scoreDisplay = played ? `<div class="score">${f.hg} - ${f.ag}</div>` : `<div class="vs">VS</div>`;
+                    html += `
+        <div class="match-card ${played ? 'played' : ''}" id="mc${f.id}">
+          <div class="home-side">
+            <div class="m-team">${ht.name}</div>
+            <div class="m-user">@${ht.user}</div>
+          </div>
+          <div>
+            <div class="score-box" onclick="toggleInput(${f.id})">${scoreDisplay}</div>
+            <div class="match-meta">🏠 Home · ⏱ 15 min</div>
+          </div>
+          <div class="away-side">
+            <div class="m-team">${at.name}</div>
+            <div class="m-user">@${at.user}</div>
+          </div>
+        </div>
+        <div class="result-input-area" id="ri${f.id}">
+          <div class="input-hint">Enter result — <strong>${ht.name}</strong> vs <strong>${at.name}</strong></div>
+          <div class="score-inputs">
+            <input type="number" id="hg${f.id}" min="0" max="20" value="${f.hg ?? ''}" placeholder="0"/>
+            <span>:</span>
+            <input type="number" id="ag${f.id}" min="0" max="20" value="${f.ag ?? ''}" placeholder="0"/>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:center">
+            <button class="btn btn-primary btn-sm" onclick="saveResult(${f.id})">✓ Confirm</button>
+            <button class="btn btn-outline btn-sm" onclick="toggleInput(${f.id})">Cancel</button>
+            ${played ? `<button class="btn btn-outline btn-sm" onclick="clearResult(${f.id})">🗑 Clear</button>` : ''}
+          </div>
+        </div>`;
+                });
+                html += `</div>`;
+                container.innerHTML += html;
+            }
+        }
+
+        function toggleInput(id) {
+            if (!isAdmin) {
+                alert('🔒 View-only mode. Click "Admin Login" to enter results.');
+                return;
+            }
+            const el = document.getElementById('ri' + id);
+            el.classList.toggle('open');
+        }
+
+        function saveResult(id) {
+            const f = FIXTURES[id];
+            const hg = parseInt(document.getElementById('hg' + id).value);
+            const ag = parseInt(document.getElementById('ag' + id).value);
+            if (isNaN(hg) || isNaN(ag) || hg < 0 || ag < 0) { alert('Enter valid scores (0 or more)'); return; }
+            f.hg = hg; f.ag = ag;
+            document.getElementById('ri' + id).classList.remove('open');
+            renderFixtures();
+            renderStandings();
+        }
+
+        function clearResult(id) {
+            FIXTURES[id].hg = null; FIXTURES[id].ag = null;
+            document.getElementById('ri' + id).classList.remove('open');
+            renderFixtures(); renderStandings();
+        }
+
+        // ─── RENDER TEAMS ─────────────────────────────────────────────────────────────
+        function renderTeams() {
+            document.getElementById('teamsGrid').innerHTML = TEAMS.map(t => `
+    <div class="team-card">
+      <div class="team-ico" style="background:${t.color};font-size:18px;border-radius:10px;">${t.icon}</div>
+      <div class="info">
+        <div class="name">${t.name}</div>
+        <div class="handle">@${t.user}</div>
+      </div>
+    </div>`).join('');
+        }
+
+        // ─── RENDER RULES ─────────────────────────────────────────────────────────────
+        const RULES = [
+            {
+                icon: "⏱", title: "Match Duration",
+                body: `Each match is set to <strong>15 minutes</strong> per game (eFootball standard time setting).`,
+                tags: [{ t: "15 MIN", c: "" }, { t: "STANDARD", c: "" }]
+            },
+            {
+                icon: "🌤", title: "Match Conditions",
+                body: `Both weather and pitch conditions set to <strong>Excellent</strong>. No weather modifiers. Wind: None.`,
+                tags: [{ t: "EXCELLENT", c: "green" }, { t: "NO WIND", c: "" }]
+            },
+            {
+                icon: "📊", title: "Scoring System",
+                body: `<ul><li><strong>Win</strong> → 3 points</li><li><strong>Draw</strong> → 1 point each</li><li><strong>Loss</strong> → 0 points</li></ul>`,
+                tags: [{ t: "W=3", c: "green" }, { t: "D=1", c: "gold" }, { t: "L=0", c: "red" }]
+            },
+            {
+                icon: "🔗", title: "Tiebreakers",
+                body: `If equal on points:<br>1. Goal Difference (GD)<br>2. Goals For (GF)<br>3. Head-to-Head result<br>4. Head-to-Head GD`,
+                tags: [{ t: "GD FIRST", c: "" }, { t: "H2H", c: "" }]
+            },
+            {
+                icon: "🗓", title: "Fixture Format",
+                body: `Full <strong>Home & Away</strong> round-robin. Each team plays every other team twice — once at home, once away. Total: 42 fixtures, 12 matchdays.`,
+                tags: [{ t: "HOME", c: "" }, { t: "AWAY", c: "" }, { t: "42 FIXTURES", c: "gold" }]
+            },
+            {
+                icon: "🎮", title: "Game Settings",
+                body: `<ul>
+      <li>Match mode: <strong>Friendly / League</strong></li>
+      <li>Game speed: <strong>Normal</strong></li>
+      <li>Injuries: <strong>OFF</strong></li>
+      <li>Bookings: <strong>ON</strong> (accumulate)</li>
+    </ul>`,
+                tags: [{ t: "NORMAL SPEED", c: "" }, { t: "NO INJURIES", c: "green" }]
+            },
+            {
+                icon: "🔴", title: "Disconnection Rule",
+                body: `If a player disconnects <strong>before 45 min</strong> game-time, the match is replayed. After 45 min, current score stands. <strong>No reconnection allowed</strong> — result is final.`,
+                tags: [{ t: "<45 MIN → REPLAY", c: "gold" }, { t: ">45 MIN → STANDS", c: "red" }]
+            },
+            {
+                icon: "🏆", title: "Squad & Team Rules",
+                body: `Each manager plays with their chosen club (listed on registration). <strong>No changing clubs</strong> mid-season. Use of GP/coin players allowed within eFootball 2026 squad limits.`,
+                tags: [{ t: "FIXED CLUB", c: "red" }, { t: "NO SWITCH", c: "red" }]
+            },
+            {
+                icon: "📅", title: "Deadline Policy",
+                body: `Each matchday has a <strong>5-day window</strong> to complete fixtures. If a match is not played, both teams receive <strong>0 points</strong> and a 0–0 result is recorded.`,
+                tags: [{ t: "5-DAY WINDOW", c: "gold" }, { t: "0-0 DEFAULT", c: "red" }]
+            },
+            {
+                icon: "🚫", title: "Unsportsmanlike Conduct",
+                body: `Time-wasting, rage-quitting, or deliberate cheating results in a <strong>3-point deduction</strong> and/or a <strong>1-matchday ban</strong> at admin's discretion.`,
+                tags: [{ t: "3 PTS DEDUCTION", c: "red" }, { t: "ADMIN DECISION", c: "" }]
+            },
+            {
+                icon: "🥇", title: "Promotion & Relegation",
+                body: `<ul>
+      <li>🥇 Top 3 → <strong>Champions Playoff</strong></li>
+      <li>4th-5th → <strong>Mid-table (safe)</strong></li>
+      <li>Bottom 2 → <strong>Relegated</strong> (next season)</li>
+    </ul>`,
+                tags: [{ t: "TOP 3 PLAYOFFS", c: "green" }, { t: "BOT 2 RELEGATED", c: "red" }]
+            },
+            {
+                icon: "🎯", title: "Golden Boot / Awards",
+                body: `Player with the highest scored goals reported wins the <strong>Golden Boot</strong>. Managers must report individual scorers after each match for tracking.`,
+                tags: [{ t: "GOLDEN BOOT", c: "gold" }, { t: "REPORT SCORERS", c: "" }]
+            },
+        ];
+
+        function renderRules() {
+            document.getElementById('rulesGrid').innerHTML = RULES.map(r => `
+    <div class="rule-card">
+      <div class="rule-icon">${r.icon}</div>
+      <div class="rule-title">${r.title}</div>
+      <div class="rule-body">${r.body}</div>
+      <div style="margin-top:12px">${r.tags.map(tg => `<span class="rule-tag ${tg.c}">${tg.t}</span>`).join('')}</div>
+    </div>`).join('');
+        }
+
+        // ─── TABS ─────────────────────────────────────────────────────────────────────
+        function showTab(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ─── INIT ─────────────────────────────────────────────────────────────────────
+        renderStandings();
+        renderFixtures();
+        renderTeams();
+        renderRules();
+    </script>
+</body>
+
+</html>
