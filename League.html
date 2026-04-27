@@ -8,6 +8,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap"
         rel="stylesheet" />
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --bg: #050a0f;
@@ -724,10 +727,68 @@
             font-size: 10px;
             letter-spacing: 2px;
         }
+
+        /* LOADING OVERLAY */
+        #loadingOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5,10,15,.88);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            gap: 18px;
+        }
+        #loadingOverlay.hidden { display: none; }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--accent);
+        }
+
+        /* SAVE TOAST */
+        #saveToast {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: linear-gradient(135deg,#0a3060,#005090);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,200,255,.3);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity .3s, transform .3s;
+            pointer-events: none;
+        }
+        #saveToast.show { opacity: 1; transform: translateY(0); }
     </style>
 </head>
 
 <body>
+    <!-- Loading overlay -->
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading League Data…</div>
+    </div>
+    <!-- Save toast -->
+    <div id="saveToast">✓ Saved to Cloud</div>
+
     <div class="wrapper">
         <header>
             <div class="league-badge">⚽ eFootball Konami 2026</div>
@@ -807,12 +868,25 @@
     </div>
 
     <script>
+        // ═══════════════════════════════════════════════════════════════════════════
+        // 🔥 FIREBASE CONFIG — Paste your Firebase project config here
+        //    Go to: console.firebase.google.com → Your Project → Project Settings
+        //    → Your Apps → Web App → SDK setup → Config
+        // ═══════════════════════════════════════════════════════════════════════════
+        const firebaseConfig = {
+            apiKey:            "AIzaSyAVmhCaL0q5Hp7UnD2wYDVtsWc_ZWqScDM",
+            authDomain:        "efootball-cadac.firebaseapp.com",
+            projectId:         "efootball-cadac",
+            storageBucket:     "efootball-cadac.firebasestorage.app",
+            messagingSenderId: "758024101834",
+            appId:             "1:758024101834:web:2046fb0104ed11212ab933"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const RESULTS_COL = 'efb_results'; // Firestore collection name
+
         // ─── ADMIN AUTH ──────────────────────────────────────────────────────────────
-        // Simple client-side admin gate. The password is hashed so it isn't plain-text.
-        // SHA-256 of "admin password" — change the hash below to match your own password.
-        // To generate: open browser console and run:
-        //   crypto.subtle.digest('SHA-256', new TextEncoder().encode('yourpassword'))
-        //     .then(b => console.log([...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')))
         const ADMIN_HASH = '81fda04b5cade7f0dba73f34d3385accf1e18bc7cd92740365fa41b5fd6df143'; // SHA-256 of "Almond"
         let isAdmin = false;
 
@@ -1034,12 +1108,25 @@
             document.getElementById('ri' + id).classList.remove('open');
             renderFixtures();
             renderStandings();
+            // 🔥 Persist to Firestore
+            db.collection(RESULTS_COL).doc(String(id)).set({ hg, ag })
+              .then(() => showToast())
+              .catch(e => console.error('Save error:', e));
         }
 
         function clearResult(id) {
             FIXTURES[id].hg = null; FIXTURES[id].ag = null;
             document.getElementById('ri' + id).classList.remove('open');
             renderFixtures(); renderStandings();
+            // 🔥 Delete from Firestore
+            db.collection(RESULTS_COL).doc(String(id)).delete()
+              .catch(e => console.error('Clear error:', e));
+        }
+
+        function showToast() {
+            const t = document.getElementById('saveToast');
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
         }
 
         // ─── RENDER TEAMS ─────────────────────────────────────────────────────────────
@@ -1145,11 +1232,27 @@
             event.target.classList.add('active');
         }
 
-        // ─── INIT ─────────────────────────────────────────────────────────────────────
-        renderStandings();
-        renderFixtures();
-        renderTeams();
-        renderRules();
+        // ─── INIT — Load results from Firestore then render ───────────────────────────
+        (async function init() {
+            try {
+                const snap = await db.collection(RESULTS_COL).get();
+                snap.forEach(doc => {
+                    const id = parseInt(doc.id);
+                    if (!isNaN(id) && FIXTURES[id]) {
+                        FIXTURES[id].hg = doc.data().hg;
+                        FIXTURES[id].ag = doc.data().ag;
+                    }
+                });
+            } catch (e) {
+                console.warn('Could not load from Firestore (check config):', e.message);
+            }
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').classList.add('hidden');
+            renderStandings();
+            renderFixtures();
+            renderTeams();
+            renderRules();
+        })();
     </script>
 </body>
 
