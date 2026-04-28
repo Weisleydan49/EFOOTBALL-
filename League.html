@@ -8,9 +8,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;600;700&family=Orbitron:wght@400;700;900&display=swap"
         rel="stylesheet" />
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <!-- No external SDK needed for JSONBin -->
     <style>
         :root {
             --bg: #050a0f;
@@ -869,22 +867,43 @@
 
     <script>
         // ═══════════════════════════════════════════════════════════════════════════
-        // 🔥 FIREBASE CONFIG — Paste your Firebase project config here
-        //    Go to: console.firebase.google.com → Your Project → Project Settings
-        //    → Your Apps → Web App → SDK setup → Config
+        // ☁️  JSONBIN CONFIG — Free cloud storage (no credit card needed)
+        //    1. Sign up free at https://jsonbin.io
+        //    2. Go to API Keys → copy your Master Key
+        //    3. Click "+ Create Bin" → paste {} → Save → copy the Bin ID from the URL
+        //    4. Replace the two values below
         // ═══════════════════════════════════════════════════════════════════════════
-        const firebaseConfig = {
-            apiKey:            "AIzaSyAVmhCaL0q5Hp7UnD2wYDVtsWc_ZWqScDM",
-            authDomain:        "efootball-cadac.firebaseapp.com",
-            projectId:         "efootball-cadac",
-            storageBucket:     "efootball-cadac.firebasestorage.app",
-            messagingSenderId: "758024101834",
-            appId:             "1:758024101834:web:2046fb0104ed11212ab933"
-        };
+        const JSONBIN_ID  = 'PASTE_YOUR_BIN_ID_HERE';   // e.g. 6630f1abc123...
+        const JSONBIN_KEY = 'PASTE_YOUR_MASTER_KEY_HERE'; // e.g. $2a$10$...
+        const JSONBIN_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_ID}`;
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const RESULTS_COL = 'efb_results'; // Firestore collection name
+        // In-memory cache of all saved results { "0": {hg,ag}, "5": {hg,ag}, ... }
+        let cloudResults = {};
+
+        async function cloudGet() {
+            try {
+                const r = await fetch(JSONBIN_URL, {
+                    headers: { 'X-Master-Key': JSONBIN_KEY }
+                });
+                if (!r.ok) throw new Error(r.status);
+                const j = await r.json();
+                cloudResults = j.record || {};
+            } catch (e) {
+                console.warn('JSONBin read failed (check config):', e.message);
+            }
+        }
+
+        async function cloudPut() {
+            try {
+                await fetch(JSONBIN_URL, {
+                    method: 'PUT',
+                    headers: { 'X-Master-Key': JSONBIN_KEY, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cloudResults)
+                });
+            } catch (e) {
+                console.warn('JSONBin write failed:', e.message);
+            }
+        }
 
         // ─── ADMIN AUTH ──────────────────────────────────────────────────────────────
         const ADMIN_HASH = '81fda04b5cade7f0dba73f34d3385accf1e18bc7cd92740365fa41b5fd6df143'; // SHA-256 of "Almond"
@@ -1108,19 +1127,18 @@
             document.getElementById('ri' + id).classList.remove('open');
             renderFixtures();
             renderStandings();
-            // 🔥 Persist to Firestore
-            db.collection(RESULTS_COL).doc(String(id)).set({ hg, ag })
-              .then(() => showToast())
-              .catch(e => console.error('Save error:', e));
+            // ☁️ Persist to JSONBin
+            cloudResults[String(id)] = { hg, ag };
+            cloudPut().then(() => showToast());
         }
 
         function clearResult(id) {
             FIXTURES[id].hg = null; FIXTURES[id].ag = null;
             document.getElementById('ri' + id).classList.remove('open');
             renderFixtures(); renderStandings();
-            // 🔥 Delete from Firestore
-            db.collection(RESULTS_COL).doc(String(id)).delete()
-              .catch(e => console.error('Clear error:', e));
+            // ☁️ Remove from JSONBin
+            delete cloudResults[String(id)];
+            cloudPut();
         }
 
         function showToast() {
@@ -1232,20 +1250,17 @@
             event.target.classList.add('active');
         }
 
-        // ─── INIT — Load results from Firestore then render ───────────────────────────
+        // ─── INIT — Load results from JSONBin then render ────────────────────────────
         (async function init() {
-            try {
-                const snap = await db.collection(RESULTS_COL).get();
-                snap.forEach(doc => {
-                    const id = parseInt(doc.id);
-                    if (!isNaN(id) && FIXTURES[id]) {
-                        FIXTURES[id].hg = doc.data().hg;
-                        FIXTURES[id].ag = doc.data().ag;
-                    }
-                });
-            } catch (e) {
-                console.warn('Could not load from Firestore (check config):', e.message);
-            }
+            await cloudGet();
+            // Apply saved results to FIXTURES
+            Object.entries(cloudResults).forEach(([key, val]) => {
+                const id = parseInt(key);
+                if (!isNaN(id) && FIXTURES[id]) {
+                    FIXTURES[id].hg = val.hg;
+                    FIXTURES[id].ag = val.ag;
+                }
+            });
             // Hide loading overlay
             document.getElementById('loadingOverlay').classList.add('hidden');
             renderStandings();
